@@ -1,0 +1,50 @@
+#!/usr/bin/env groovy
+
+// ppc64le/golang:1.8.3 is debian:8 based
+docker.image('ppc64le/golang:1.8.3').inside {
+
+	stage("Installing pre-reqs"){
+		// containerd reqs from the containerd travis.yml 
+		// https://github.com/containerd/containerd/blob/master/.travis.yml
+		sh "apt-get update && \
+			apt-get install -y btrfs-tools libseccomp-dev libapparmor-dev \
+			libnl-3-dev libnet-dev protobuf-c-compiler protobuf-compiler \
+			python-minimal libcap-dev libaio-dev libprotobuf-c0-dev \
+			libprotobuf-dev git make"
+	
+		// setup gopath and path
+		sh "mkdir -p /go/src /go/bin"
+		sh "mkdir -p /go/src/github.com/opencontainers"
+		sh "mkdir -p /go/src/github.com/containerd"
+		sh "mkdir -p /go/src/github.com/google"
+		sh "export GOPATH=/go"
+		sh "export PATH=$PATH:/go/bin"
+
+		// get proto3 and compile it
+		sh "apt-get install -y autoconf automake libtool curl g++ unzip"
+		sh "cd /go/src/github.com/google"
+		sh "git clone https://github.com/google/protobuf.git && \
+			cd protobuf"
+		sh "./autogen.sh"
+		sh "./configure"
+		sh "make"
+		sh "make check"
+		sh "make install"
+		sh "ldconfig"
+
+		// get runc and compile it
+		sh "cd /go/src/github.com/opencontainers"
+		sh "git clone https://github.com/opencontainers/runc.git && \
+			cd runc"
+
+		// get containerd
+		sh "cd /go/src/github.com/containerd"
+		sh "git clone https://github.com/containerd/containerd.git && \
+			cd containerd"
+
+
+	}
+	stage("Running make binaries install test"){
+		sh "make binaries install test integration root-test"
+	}
+}
