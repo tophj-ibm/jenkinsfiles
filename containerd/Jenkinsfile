@@ -40,6 +40,9 @@ docker.image('ppc64le/ubuntu:xenial').inside {
 		sh "cd /go/src/github.com/opencontainers"
 		sh "git clone https://github.com/opencontainers/runc.git && \
 			cd runc"
+		sh "cd runc"
+		sh "make runc install"
+		sh "cp runc /go/bin"
 
 		// get containerd
 		sh "cd /go/src/github.com/containerd"
