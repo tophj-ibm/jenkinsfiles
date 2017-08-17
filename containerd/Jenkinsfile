@@ -28,7 +28,8 @@ docker.image('ppc64le/ubuntu:xenial').inside {
 		sh "cd /go/src/github.com/google"
 		sh "git clone https://github.com/google/protobuf.git && \
 			cd protobuf"
-		sh "./autogen.sh"
+		sh "ls"
+		sh "./autogen.sh | true"
 		sh "./configure"
 		sh "make"
 		sh "make check"
