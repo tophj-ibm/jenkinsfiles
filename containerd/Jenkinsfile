@@ -1,27 +1,30 @@
 #!/usr/bin/env groovy
 
-// ppc64le/golang:1.8.3 is debian:8 based
-docker.image('ppc64le/golang:1.8.3').inside {
+docker.image('ppc64le/ubuntu:xenial').inside {
 
 	stage("Installing pre-reqs"){
 		// containerd reqs from the containerd travis.yml 
 		// https://github.com/containerd/containerd/blob/master/.travis.yml
 		sh "apt-get update && \
-			apt-get install -y btrfs-tools libseccomp-dev libapparmor-dev \
-			libnl-3-dev libnet-dev protobuf-c-compiler protobuf-compiler \
+			apt-get install -y btrfs-tools curl git libseccomp-dev libapparmor-dev \
+			libnl-3-dev libnet-dev make protobuf-c-compiler protobuf-compiler \
 			python-minimal libcap-dev libaio-dev libprotobuf-c0-dev \
-			libprotobuf-dev git make"
-	
+			libprotobuf-dev"	
+
+		// install go
+		sh "curl -fsSL \"https://golang.org/dl/go1.8.3.linux-ppc64le.tar.gz\" \
+			 | tar -xzC /usr/local"
+
 		// setup gopath and path
 		sh "mkdir -p /go/src /go/bin"
 		sh "mkdir -p /go/src/github.com/opencontainers"
 		sh "mkdir -p /go/src/github.com/containerd"
 		sh "mkdir -p /go/src/github.com/google"
 		sh "export GOPATH=/go"
-		sh "export PATH=$PATH:/go/bin"
+		sh "export PATH=$PATH:/go/bin:/usr/local/go/bin"
 
 		// get proto3 and compile it
-		sh "apt-get install -y autoconf automake libtool curl g++ unzip"
+		sh "apt-get install -y autoconf automake libtool g++ unzip"
 		sh "cd /go/src/github.com/google"
 		sh "git clone https://github.com/google/protobuf.git && \
 			cd protobuf"
