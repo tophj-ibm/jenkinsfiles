@@ -1,9 +1,11 @@
 #!/usr/bin/env groovy
 
 node("ubuntu-vm-slave"){
+	checkout scm
+	sh "cp containerd/Dockerfile ."
 
 	def environment = docker.build 'containerd'
-	environment.inside {
+	environment.inside("--privileged"){
 
 		stage("Pulling latest containerd"){
 			// get containerd
@@ -13,7 +15,7 @@ node("ubuntu-vm-slave"){
 		}
 		stage("Running make binaries install test"){
 			sh "cd /go/src/github.com/containerd && \
-				make binaries install test integration root-test"
+				make BUILDTAGS=no_btrfs binaries install test integration"
 		}
 	}
 }
