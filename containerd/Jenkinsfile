@@ -15,7 +15,7 @@ node("ubuntu-vm-slave"){
 		}
 		stage("Running make binaries install test"){
 			sh "cd /go/src/github.com/containerd/containerd && \
-				make BUILDTAGS=no_btrfs binaries install test integration"
+				make BUILDTAGS=no_btrfs binaries install test"
 		}
 	}
 }
